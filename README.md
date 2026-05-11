@@ -1,59 +1,134 @@
-# RunChicken
+# 🐔 Run Chicken! — Multiplayer Local Race
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.10.
+Prototipo de juego multijugador en red local usando **Angular + Phaser + Socket.IO**.
 
-## Development server
+---
 
-To start a local development server, run:
+## Arquitectura
 
-```bash
-ng serve
+```
+┌─────────────────────────────────────┐
+│  PC Host (servidor)                 │
+│  ┌───────────────┐ ┌─────────────┐  │
+│  │ Node.js       │ │ Angular     │  │
+│  │ Socket.IO     │ │ ng serve    │  │
+│  │ :3000         │ │ :4200       │  │
+│  └───────────────┘ └─────────────┘  │
+└─────────────────────────────────────┘
+          ▲ WiFi local
+  ┌───────┴───────┐
+  │  Teléfonos    │  http://192.168.x.x:4200
+  │  (jugadores)  │
+  └───────────────┘
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+**El servidor es autoritativo**: decide progreso, colisiones, vidas, ganador. El cliente solo renderiza y envía inputs.
 
-## Code scaffolding
+---
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Inicio rápido
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### 1. Instalar dependencias
 
 ```bash
-ng generate --help
+# Frontend
+npm install
+
+# Backend
+cd server && npm install
 ```
 
-## Building
-
-To build the project run:
+### 2. Iniciar el servidor (backend)
 
 ```bash
-ng build
+cd server
+npm run dev
+# → http://0.0.0.0:3000
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### 3. Iniciar Angular (frontend)
 
 ```bash
-ng test
+# En la raíz del proyecto
+npm start
+# → http://0.0.0.0:4200
 ```
 
-## Running end-to-end tests
+### 4. Conectar jugadores desde teléfonos
 
-For end-to-end (e2e) testing, run:
-
+Averigua la IP local del PC host:
 ```bash
-ng e2e
+ip addr show | grep "inet " | grep -v 127
+# ej: 192.168.1.50
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Los jugadores abren en su navegador: **`http://192.168.1.50:4200`**
 
-## Additional Resources
+---
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Mecánicas del juego
+
+| Elemento | Efecto |
+|----------|--------|
+| 🧱 Obstáculo | Pierde 1 vida + 2s de invencibilidad |
+| 🦠 Virus | Reduce velocidad temporalmente |
+| 💊 Vitamina | Boost de velocidad + 1.5s invencibilidad |
+| ❤️ Vidas | 3 vidas iniciales. Sin vidas → eliminado |
+| 🏁 Meta | 2000 unidades de distancia |
+
+- **3 carriles** (izquierda / centro / derecha)
+- Velocidad **aumenta con el tiempo** (~8 u/s cada 10 seg)
+- Panel lateral muestra el progreso de **todos los jugadores** en tiempo real
+
+### Controles
+
+| Dispositivo | Acción |
+|-------------|--------|
+| Móvil | Toca lado izquierdo → carril izq; lado derecho → carril der |
+| Teclado | ← → flechas |
+| Swipe | Desliza izquierda/derecha |
+
+---
+
+## Estructura del proyecto
+
+```
+run-chicken/
+├── server/                  ← Backend Node.js
+│   ├── src/
+│   │   ├── server.ts        ← Express + Socket.IO
+│   │   ├── GameRoom.ts      ← Lógica autoritativa del juego
+│   │   └── types.ts         ← Tipos compartidos
+│   └── package.json
+│
+└── src/app/                 ← Frontend Angular
+    ├── game/
+    │   ├── constants.ts     ← Constantes compartidas + tipos
+    │   └── scenes/
+    │       └── GameScene.ts ← Escena Phaser principal
+    ├── pages/
+    │   ├── lobby/           ← Pantalla de entrada
+    │   └── game/            ← Vista del juego
+    └── services/
+        ├── socket.service.ts      ← Wrapper Socket.IO
+        └── game-state.service.ts  ← Estado global reactivo
+```
+
+---
+
+## Eventos Socket.IO
+
+### Cliente → Servidor
+| Evento | Datos |
+|--------|-------|
+| `joinGame` | `{ name: string }` |
+| `startGame` | _(solo host)_ |
+| `movePlayer` | `{ lane: 0 \| 1 \| 2 }` |
+| `restartGame` | _(solo host)_ |
+
+### Servidor → Cliente
+| Evento | Datos |
+|--------|-------|
+| `joined` | `{ playerId, isHost, gameState }` |
+| `gameState` | Estado público de todos los jugadores |
+| `playerView` | Vista personalizada (mis obstáculos, mis stats) |

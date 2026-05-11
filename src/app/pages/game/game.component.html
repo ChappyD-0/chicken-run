@@ -1,0 +1,75 @@
+<div class="game-layout">
+  <!-- ── Phaser canvas container ─────────────────────────────────────── -->
+  <div class="canvas-wrap">
+    <div #gameCanvas class="phaser-host"></div>
+    <!-- Countdown overlay -->
+    @if (phase === 'countdown') {
+      <div class="overlay-center countdown">{{ countdown }}</div>
+    }
+    <!-- Waiting overlay (host only) -->
+    @if (phase === 'waiting') {
+      <div class="overlay-center waiting">
+        <p>Esperando jugadores…</p>
+        <p class="small">{{ players.length }} conectado(s)</p>
+        @if (isHost) {
+          <button class="btn-start" (click)="startGame()" [disabled]="players.length < 1">
+            ▶ Iniciar carrera
+          </button>
+        } @else {
+          <p class="small muted">El host iniciará pronto</p>
+        }
+      </div>
+    }
+    <!-- Finished overlay -->
+    @if (phase === 'finished') {
+      <div class="overlay-center finished">
+        @if (winnerName) {
+          <div class="trophy">🏆</div>
+          <p class="winner-name">{{ winnerName }}</p>
+          <p class="winner-sub">¡GANÓ LA CARRERA!</p>
+        } @else if (myId && players.length === 1 && players[0]?.disqualified) {
+          <div class="trophy">💀</div>
+          <p class="winner-name">¡ELIMINADO!</p>
+          <p class="winner-sub">No llegaste a la meta</p>
+        } @else {
+          <p>Carrera terminada — sin ganador</p>
+        }
+        @if (isHost) {
+          <button class="btn-start" (click)="restartGame()">🔄 Nueva carrera</button>
+        }
+        <button class="btn-back" (click)="backToLobby()">← Volver al lobby</button>
+      </div>
+    }
+    <!-- Mobile lane control hints -->
+    @if (phase === 'running') {
+      <div class="lane-hints">
+        <span>◀ izq</span>
+        <span>der ▶</span>
+      </div>
+    }
+  </div>
+  <!-- ── Progress panel (Angular overlay, right side on desktop) ────── -->
+  <aside class="progress-panel">
+    <h3>🏁 Progreso</h3>
+    @for (player of players; track player.id) {
+      <div class="player-row" [class.me]="player.id === myId" [class.out]="!player.active && !player.finished">
+        <div class="player-header">
+          <span class="player-name">{{ player.name }}</span>
+          <span class="player-lives">{{ player.shielded ? '🛡' : (player.disqualified ? '💀' : '') }}</span>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" [style.width.%]="progressPercent(player.distance)">
+          </div>
+          <span class="progress-label">{{ progressPercent(player.distance) }}%</span>
+        </div>
+        <div class="dist-label">{{ player.distance }}m / {{ WIN_DISTANCE }}m
+          @if (player.finished) { <span class="tag finish">🏆 Terminó</span> }
+          @else if (!player.active) { <span class="tag elim">💀 Eliminado</span> }
+        </div>
+      </div>
+    }
+    @if (players.length === 0) {
+      <p class="muted">Sin jugadores aún</p>
+    }
+  </aside>
+</div>

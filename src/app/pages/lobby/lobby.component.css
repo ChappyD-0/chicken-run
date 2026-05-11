@@ -1,0 +1,124 @@
+.lobby-wrapper {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  padding: 1rem;
+}
+.card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+.logo { font-size: 5rem; line-height: 1; margin-bottom: 0.5rem; }
+h1 { color: #FFD700; font-size: 2rem; margin: 0 0 0.25rem; }
+.subtitle { color: #aaa; margin: 0 0 1rem; font-size: 0.9rem; }
+
+/* ── Phase badge ─────────────────────────────────────────────────────────── */
+.phase-badge {
+  display: inline-block;
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  background: rgba(255,255,255,0.08);
+  color: #ccc;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.phase-badge.waiting   { color: #ffd700; border-color: rgba(255,215,0,0.3); }
+.phase-badge.countdown { color: #ff9f43; border-color: rgba(255,159,67,0.3); }
+.phase-badge.running   { color: #00d2a0; border-color: rgba(0,210,160,0.3); }
+.phase-badge.finished  { color: #a29bfe; border-color: rgba(162,155,254,0.3); }
+
+/* ── Live players list ───────────────────────────────────────────────────── */
+.players-list {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+.list-title {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 0.5rem;
+}
+.player-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 8px;
+  color: #ddd;
+  font-size: 0.88rem;
+  margin-bottom: 0.25rem;
+}
+.player-chip:last-child { margin-bottom: 0; }
+.dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #00d2a0;
+  flex-shrink: 0;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.8); }
+}
+.empty-list {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+/* ── Join form ───────────────────────────────────────────────────────────── */
+input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 2px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  margin-bottom: 1rem;
+}
+input:focus { border-color: #FFD700; }
+button {
+  width: 100%;
+  padding: 0.85rem;
+  background: #FFD700;
+  color: #1a1a2e;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+button:hover:not(:disabled) { opacity: 0.85; }
+.error { color: #ff6b6b; font-size: 0.85rem; margin: -0.5rem 0 0.5rem; }
+.in-progress {
+  color: #aaa;
+  font-size: 0.9rem;
+  padding: 1rem;
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+.hint { color: #888; font-size: 0.75rem; margin-top: 1.25rem; line-height: 1.5; }
+.hint strong { color: #FFD700; }

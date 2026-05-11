@@ -1,0 +1,64 @@
+<div class="lobby-wrapper">
+  <div class="card">
+    <div class="logo">🐔</div>
+    <h1>Run Chicken!</h1>
+    <p class="subtitle">Carrera multijugador en tiempo real</p>
+
+    <!-- ── Server status badge ──────────────────────────────────────────── -->
+    <div class="phase-badge" [class]="serverPhase()">
+      @switch (serverPhase()) {
+        @case ('waiting')   { ⏳ Esperando jugadores }
+        @case ('countdown') { 🔥 Iniciando carrera… }
+        @case ('running')   { 🏃 Carrera en curso }
+        @case ('finished')  { 🏁 Partida terminada }
+      }
+    </div>
+
+    <!-- ── Live players list ────────────────────────────────────────────── -->
+    @if (connectedPlayers().length > 0) {
+      <div class="players-list">
+        <p class="list-title">
+          Jugadores conectados ({{ connectedPlayers().length }})
+        </p>
+        @for (player of connectedPlayers(); track player.id) {
+          <div class="player-chip">
+            <span class="dot"></span>
+            {{ player.name }}
+          </div>
+        }
+      </div>
+    } @else {
+      <p class="empty-list">Sé el primero en unirte 👇</p>
+    }
+
+    <!-- ── Join form ─────────────────────────────────────────────────────── -->
+    @if (serverPhase() === 'waiting') {
+      <input
+        type="text"
+        [(ngModel)]="name"
+        placeholder="Tu nombre de jugador"
+        maxlength="20"
+        (keydown.enter)="join()"
+        autofocus
+      />
+
+      @if (error()) {
+        <p class="error">{{ error() }}</p>
+      }
+
+      <button (click)="join()" [disabled]="joining()">
+        {{ joining() ? 'Conectando…' : '🎮 Unirse al juego' }}
+      </button>
+    } @else {
+      <p class="in-progress">
+        La partida está en curso.<br>
+        Espera a que termine para unirte.
+      </p>
+    }
+
+    <p class="hint">
+      Conecta tus dispositivos a la misma red WiFi.<br>
+      Servidor en el puerto <strong>3000</strong>.
+    </p>
+  </div>
+</div>
